@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qoets : 0101</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --panel-bg: rgba(28, 28, 30, 0.6);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #F5F5F7;
+            --text-muted: #86868B;
+            --accent: #0071E3;
+            --accent-hover: #0077ED;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% -20%, #1a1a1c, #000000 70%);
+            flex-direction: column;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 48px 32px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+
+        button {
+            background-color: var(--accent);
+            color: #ffffff;
+            border: none;
+            border-radius: 980px;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        button:disabled {
+            background-color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .output-section {
+            margin-top: 32px;
+            text-align: left;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            display: none;
+        }
+
+        .output-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+
+        .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .terminal {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: "SF Mono", "Menlo", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #34D399; 
+            word-wrap: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .terminal::-webkit-scrollbar {
+            width: 6px;
+        }
+        .terminal::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .terminal::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: 3px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: #34D399;
+            vertical-align: middle;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 24px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 0.3px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="main-container">
+        <h1>Qoets : 0101</h1>
+        <p class="subtitle">Spatial Encrypted Obfuscation</p>
+        
+        <button id="action-btn" onclick="initiateSequence()">Authenticate & Encrypt</button>
+
+        <div class="output-section" id="output-section">
+            <div class="label">Encrypted W Output</div>
+            <div class="terminal" id="terminal">
+                <span id="binary-output"></span><span class="cursor" id="cursor"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Qoets. Created as a school project.
+    </div>
+
+    <script>
+        // Dictionary for Custom Cipher
+        const cipherMap = {
+            '1': 'A', '2': 'B', '3': 'C', '4': 'D', '5': 'E',
+            '6': 'F', '7': 'G', '8': 'H', '9': 'I', '0': 'O',
+            '.': 'M', ',': 'N'
+        };
+
+        // Massive Shakespeare Quote Pool
+        const quotes = [
+            "To be, or not to be, that is the question.",
+            "All the world's a stage, and all the men and women merely players.",
+            "There is nothing either good or bad, but thinking makes it so.",
+            "We know what we are, but know not what we may be.",
+            "Hell is empty and all the devils are here.",
+            "The fault, dear Brutus, is not in our stars, but in ourselves.",
+            "Love looks not with the eyes, but with the mind.",
+            "Cowards die many times before their deaths; the valiant never taste of death but once.",
+            "If music be the food of love, play on.",
+            "What's in a name? That which we call a rose by any other word would smell as sweet.",
+            "Words without thoughts never to heaven go.",
+            "Brevity is the soul of wit.",
+            "Suspicion always haunts the guilty mind.",
+            "Some are born great, some achieve greatness, and some have greatness thrust upon them.",
+            "The course of true love never did run smooth.",
+            "Stars, hide your fires; let not light see my black and deep desires.",
+            "I wasted time, and now doth time waste me.",
+            "Conscience doth make cowards of us all.",
+            "My words fly up, my thoughts remain below.",
+            "To thine own self be true.",
+            "Uneasy lies the head that wears a crown.",
+            "A fool thinks himself to be wise, but a wise man knows himself to be a fool.",
+            "By the pricking of my thumbs, something wicked this way comes.",
+            "Lord, what fools these mortals be!",
+            "Expectation is the root of all heartache.",
+            "The web of our life is of a mingled yarn, good and ill together.",
+            "Boldness be my friend.",
+            "Though she be but little, she is fierce."
+        ];
+
+        // Step 2: Encrypt Coordinates
+        function encryptCoordinates(lat, lon) {
+            const rawString = `${lat}, ${lon}`;
+            return rawString.split('').map(char => cipherMap[char] || char).join('');
+        }
+
+        // Step 5: Convert string to 8-bit Binary
+        function stringToBinary(str) {
+            return str.split('').map(char => {
+                return char.charCodeAt(0).toString(2).padStart(8, '0');
+            }).join('');
+        }
+
+        // Typewriter Animation for Binary
+        function typeWriterEffect(text, elementId, speed = 5) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = ""; 
+            let i = 0;
+            
+            function type() {
+                if (i < text.length) {
+                    let chunk = text.substring(i, i + 8);
+                    element.innerHTML += chunk;
+                    i += 8;
+                    
+                    const terminal = document.getElementById('terminal');
+                    terminal.scrollTop = terminal.scrollHeight;
+
+                    setTimeout(type, speed);
+                } else {
+                    document.getElementById('cursor').style.animation = "blink 1s step-end infinite";
+                }
+            }
+            
+            document.getElementById('cursor').style.animation = "none";
+            document.getElementById('cursor').style.opacity = "1";
+            type();
+        }
+
+        // Main Pipeline
+        function initiateSequence() {
+            const btn = document.getElementById('action-btn');
+            const outputSection = document.getElementById('output-section');
+            
+            btn.disabled = true;
+            btn.innerText = "Requesting Location...";
+
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser.");
+                btn.disabled = false;
+                btn.innerText = "Authenticate & Encrypt";
+                return;
+            }
+
+            // Step 1: Get Coordinates
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    btn.innerText = "Processing Pipeline...";
+                    
+                    const lat = position.coords.latitude.toFixed(7);
+                    const lon = position.coords.longitude.toFixed(7);
+
+                    // Step 2: Encrypt
+                    const data1 = encryptCoordinates(lat, lon);
+
+                    // Step 3: Random Quote
+                    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                    const data2 = randomQuote;
+
+                    // Step 4: Merge
+                    const combined = data1 + data2;
+
+                    // Step 5: Convert to Binary
+                    const finalBinary = stringToBinary(combined);
+
+                    // Step 6: Display
+                    setTimeout(() => {
+                        btn.style.display = "none"; 
+                        outputSection.classList.add('visible');
+                        typeWriterEffect(finalBinary, 'binary-output', 15);
+                    }, 600);
+                },
+                (error) => {
+                    alert("Location access denied or unavailable. Please allow access to proceed.");
+                    btn.disabled = false;
+                    btn.innerText = "Authenticate & Encrypt";
+                }
+            );
+        }
+    </script>
+</body>
+</html>
